@@ -5,6 +5,8 @@ import "swiper/css/effect-coverflow";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { EffectCoverflow, Pagination, Navigation } from "swiper/modules";
+import { useQuery } from "@tanstack/react-query";
+import { getBestseller, BookI } from "../api";
 import styled from "styled-components";
 
 const SlideBox = styled.div`
@@ -20,8 +22,9 @@ const SlideBox = styled.div`
   .swiper-slide {
     background-position: center;
     background-size: cover;
-    width: 300px;
-    height: 300px;
+    width: 200px;
+    height: 100%;
+    box-shadow: 0px 0px 5px #444;
   }
 `;
 
@@ -31,56 +34,46 @@ const Img = styled.img`
 `;
 
 const Slide = () => {
-  return (
-    <SlideBox>
-      <Swiper
-        loop={true}
-        navigation={true}
-        effect={"coverflow"}
-        grabCursor={true}
-        centeredSlides={true}
-        slidesPerView={"auto"}
-        coverflowEffect={{
-          rotate: 50,
-          stretch: 0,
-          depth: 100,
-          modifier: 1,
-          slideShadows: true,
-        }}
-        pagination={true}
-        modules={[EffectCoverflow, Pagination, Navigation]}
-        className="mySwiper"
-      >
-        <SwiperSlide>
-          <Img src="https://swiperjs.com/demos/images/nature-1.jpg" />
-        </SwiperSlide>
-        <SwiperSlide>
-          <Img src="https://swiperjs.com/demos/images/nature-2.jpg" />
-        </SwiperSlide>
-        <SwiperSlide>
-          <Img src="https://swiperjs.com/demos/images/nature-3.jpg" />
-        </SwiperSlide>
-        <SwiperSlide>
-          <Img src="https://swiperjs.com/demos/images/nature-4.jpg" />
-        </SwiperSlide>
-        <SwiperSlide>
-          <Img src="https://swiperjs.com/demos/images/nature-5.jpg" />
-        </SwiperSlide>
-        <SwiperSlide>
-          <Img src="https://swiperjs.com/demos/images/nature-6.jpg" />
-        </SwiperSlide>
-        <SwiperSlide>
-          <Img src="https://swiperjs.com/demos/images/nature-7.jpg" />
-        </SwiperSlide>
-        <SwiperSlide>
-          <Img src="https://swiperjs.com/demos/images/nature-8.jpg" />
-        </SwiperSlide>
-        <SwiperSlide>
-          <Img src="https://swiperjs.com/demos/images/nature-9.jpg" />
-        </SwiperSlide>
-      </Swiper>
-    </SlideBox>
-  );
+  const { data, isLoading, error } = useQuery<BookI>({
+    queryKey: ["bestseller"],
+    queryFn: getBestseller,
+  });
+
+  console.log(data?.item);
+
+  if (isLoading) {
+    return <div>Loading</div>;
+  } else {
+    return (
+      <SlideBox>
+        <Swiper
+          loop={true}
+          navigation={true}
+          effect={"coverflow"}
+          grabCursor={true}
+          centeredSlides={true}
+          slidesPerView={"auto"}
+          spaceBetween={100}
+          coverflowEffect={{
+            rotate: 50,
+            stretch: 0,
+            depth: 100,
+            modifier: 1,
+            slideShadows: true,
+          }}
+          pagination={true}
+          modules={[EffectCoverflow, Pagination, Navigation]}
+          className="mySwiper"
+        >
+          {data?.item.map((item) => (
+            <SwiperSlide key={item.itemId}>
+              <Img src={item.cover} alt="" />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </SlideBox>
+    );
+  }
 };
 
 export default Slide;
